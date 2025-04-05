@@ -91,11 +91,10 @@ export default async function Home() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-white">
-                    Game Day Parking Made Easy
+                    Event Parking Made Easy
                   </h1>
                   <p className="max-w-[600px] text-gray-200 md:text-xl">
-                    Find and reserve the perfect parking spot for your next game or event. No more circling the block or
-                    overpaying for stadium parking.
+                    Find and reserve the perfect parking spot for your next game or event. No more circling the block or overpaying for stadium parking.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
