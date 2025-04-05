@@ -6,11 +6,11 @@ import { redirect } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 
 import { MainNav } from "@/components/main-nav"
-import { createServerSupabaseClient } from "@/lib/supabase-server"
+import { createClient } from "@/utils/supabase/server"
 import { ReviewForm } from "@/components/booking/review-form"
 
 export default async function LeaveReviewPage({ params }: { params: { id: string } }) {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
 
   // Check if user is logged in
   const {

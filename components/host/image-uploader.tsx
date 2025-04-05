@@ -4,16 +4,12 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/utils/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Trash, Upload, Check } from "lucide-react"
 
-type ParkingSpotImage = {
-  id: string
-  image_url: string
-  is_primary: boolean
-}
+const supabase = createClient()
 
 export function ImageUploader({ parkingSpotId }: { parkingSpotId: string }) {
   const [images, setImages] = useState<ParkingSpotImage[]>([])

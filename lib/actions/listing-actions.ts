@@ -1,18 +1,21 @@
 "use server"
 
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
+import { createClient } from "@/utils/supabase/server"
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 
 export async function createListing(formData: FormData) {
-  const supabase = createServerActionClient({ cookies })
+  const supabase = await createClient({ cookies })
 
   // Check if user is authenticated
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (userError) {
+    console.error("Error getting user:", userError)
+    return { error: "Not authenticated" }
+  }
+
+  if (!user) {
     return { error: "Not authenticated" }
   }
 
@@ -38,7 +41,7 @@ export async function createListing(formData: FormData) {
     const { data, error } = await supabase
       .from("parking_spots")
       .insert({
-        owner_id: session.user.id,
+        owner_id: user.id,
         title,
         description,
         address,
@@ -82,14 +85,17 @@ export async function createListing(formData: FormData) {
 }
 
 export async function updateListing(listingId: string, formData: FormData) {
-  const supabase = createServerActionClient({ cookies })
+  const supabase = await createClient({ cookies })
 
   // Check if user is authenticated
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (userError) {
+    console.error("Error getting user:", userError)
+    return { error: "Not authenticated" }
+  }
+
+  if (!user) {
     return { error: "Not authenticated" }
   }
 
@@ -120,7 +126,7 @@ export async function updateListing(listingId: string, formData: FormData) {
 
     if (fetchError) throw fetchError
 
-    if (listing.owner_id !== session.user.id) {
+    if (listing.owner_id !== user.id) {
       return { error: "Not authorized to update this listing" }
     }
 
@@ -179,14 +185,17 @@ export async function updateListing(listingId: string, formData: FormData) {
 }
 
 export async function deleteListing(listingId: string) {
-  const supabase = createServerActionClient({ cookies })
+  const supabase = await createClient({ cookies })
 
   // Check if user is authenticated
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (userError) {
+    console.error("Error getting user:", userError)
+    return { error: "Not authenticated" }
+  }
+
+  if (!user) {
     return { error: "Not authenticated" }
   }
 
@@ -200,7 +209,7 @@ export async function deleteListing(listingId: string) {
 
     if (fetchError) throw fetchError
 
-    if (listing.owner_id !== session.user.id) {
+    if (listing.owner_id !== user.id) {
       return { error: "Not authorized to delete this listing" }
     }
 

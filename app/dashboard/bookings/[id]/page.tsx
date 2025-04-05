@@ -10,11 +10,11 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { MainNav } from "@/components/main-nav"
-import { createServerSupabaseClient } from "@/lib/supabase-server"
+import { createClient } from "@/utils/supabase/server"
 import { CancelBookingButton } from "@/components/booking/cancel-booking-button"
 
 export default async function BookingDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
 
   // Check if user is logged in
   const {

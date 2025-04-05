@@ -3,32 +3,13 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Calendar, Clock, MapPin, User } from "lucide-react"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/utils/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-type Booking = {
-  id: string
-  booking_date: string
-  check_in_time: string
-  check_out_time: string
-  total_price: number
-  status: string
-  created_at: string
-  parking_spot: {
-    title: string
-    address: string
-    city: string
-    state: string
-  }
-  user: {
-    first_name: string
-    last_name: string
-    email: string
-  }
-}
+const supabase = createClient()
 
 export function HostBookingsList() {
   const [bookings, setBookings] = useState<Booking[]>([])

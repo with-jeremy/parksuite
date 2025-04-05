@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MainNav } from "@/components/main-nav"
-import { createServerSupabaseClient } from "@/lib/supabase-server"
+import { createClient } from "@/utils/supabase/client"
 
 export default async function AdminEventsPage() {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
 
   // Check if user is logged in and is an admin
   const {

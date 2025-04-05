@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isBefore } from "date-fns"
 import { Calendar, ChevronLeft, ChevronRight, Trash, Loader2 } from "lucide-react"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/utils/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -24,21 +24,7 @@ import { cn } from "@/lib/utils"
 import { createAvailability, updateAvailability, deleteAvailability } from "@/lib/actions/host-actions"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-type Availability = {
-  id: string
-  parking_spot_id: string
-  date: string
-  is_available: boolean
-  price_override: number | null
-  notes: string | null
-}
-
-type Event = {
-  id: string
-  name: string
-  date: string
-  venue_id: string
-}
+const supabase = createClient()
 
 export function AvailabilityCalendar({
   parkingSpotId,

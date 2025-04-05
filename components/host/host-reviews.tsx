@@ -1,25 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/utils/supabase/client"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Star } from "lucide-react"
 
-type Review = {
-  id: string
-  rating: number
-  comment: string
-  created_at: string
-  user: {
-    first_name: string
-    last_name: string
-    avatar_url: string | null
-  }
-  parking_spot: {
-    title: string
-  }
-}
+const supabase = createClient()
 
 export function HostReviews() {
   const [reviews, setReviews] = useState<Review[]>([])

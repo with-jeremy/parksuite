@@ -1,12 +1,12 @@
 import { redirect, notFound } from "next/navigation"
 import { MainNav } from "@/components/main-nav"
-import { createServerSupabaseClient } from "@/lib/supabase-server"
+import { createClient } from "@/utils/supabase/server"
 import { ListingForm } from "@/components/host/listing-form"
 
 export const dynamic = "force-dynamic"
 
 export default async function EditListingPage({ params }: { params: { id: string } }) {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
 
   // Check if user is logged in
   const {

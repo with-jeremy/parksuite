@@ -6,10 +6,10 @@ import { ArrowLeft } from "lucide-react"
 
 import { MainNav } from "@/components/main-nav"
 import { EventForm } from "@/components/admin/event-form"
-import { createServerSupabaseClient } from "@/lib/supabase-server"
+import { createClient } from "@/utils/supabase/client"
 
 export default async function NewEventPage() {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
 
   // Check if user is logged in and is an admin
   const {

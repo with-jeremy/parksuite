@@ -2,31 +2,13 @@
 
 import { Badge } from "@/components/ui/badge"
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/utils/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DollarSign, TrendingUp, Calendar, CreditCard, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-type EarningsSummary = {
-  total: number
-  pending: number
-  completed: number
-  bookings: number
-}
-
-type RecentPayment = {
-  id: string
-  amount: number
-  status: string
-  created_at: string
-  booking: {
-    parking_spot: {
-      title: string
-    }
-  }
-}
-
+const supabase = createClient()
 export function HostEarnings() {
   const [timeframe, setTimeframe] = useState<string>("month")
   const [earnings, setEarnings] = useState<EarningsSummary>({

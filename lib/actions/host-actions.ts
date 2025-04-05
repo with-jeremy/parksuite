@@ -1,18 +1,21 @@
 "use server"
 
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
+import { createClient } from "@/utils/supabase/server"
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 
 export async function createAvailability(formData: FormData) {
-  const supabase = createServerActionClient({ cookies })
+  const supabase = await createClient({ cookies })
 
   // Check if user is authenticated
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (userError) {
+    console.error("Error getting user:", userError)
+    return { error: "Not authenticated" }
+  }
+
+  if (!user) {
     return { error: "Not authenticated" }
   }
 
@@ -38,7 +41,7 @@ export async function createAvailability(formData: FormData) {
 
     if (fetchError) throw fetchError
 
-    if (parkingSpot.owner_id !== session.user.id) {
+    if (parkingSpot.owner_id !== user.id) {
       return { error: "Not authorized to update this parking spot" }
     }
 
@@ -68,14 +71,17 @@ export async function createAvailability(formData: FormData) {
 }
 
 export async function updateAvailability(availabilityId: string, formData: FormData) {
-  const supabase = createServerActionClient({ cookies })
+  const supabase = await createClient({ cookies })
 
   // Check if user is authenticated
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (userError) {
+    console.error("Error getting user:", userError)
+    return { error: "Not authenticated" }
+  }
+
+  if (!user) {
     return { error: "Not authenticated" }
   }
 
@@ -110,7 +116,7 @@ export async function updateAvailability(availabilityId: string, formData: FormD
 
     if (spotError) throw spotError
 
-    if (parkingSpot.owner_id !== session.user.id) {
+    if (parkingSpot.owner_id !== user.id) {
       return { error: "Not authorized to update this availability" }
     }
 
@@ -138,14 +144,17 @@ export async function updateAvailability(availabilityId: string, formData: FormD
 }
 
 export async function deleteAvailability(availabilityId: string) {
-  const supabase = createServerActionClient({ cookies })
+  const supabase = await createClient({ cookies })
 
   // Check if user is authenticated
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (userError) {
+    console.error("Error getting user:", userError)
+    return { error: "Not authenticated" }
+  }
+
+  if (!user) {
     return { error: "Not authenticated" }
   }
 
@@ -168,7 +177,7 @@ export async function deleteAvailability(availabilityId: string) {
 
     if (spotError) throw spotError
 
-    if (parkingSpot.owner_id !== session.user.id) {
+    if (parkingSpot.owner_id !== user.id) {
       return { error: "Not authorized to delete this availability" }
     }
 

@@ -6,10 +6,10 @@ import { ArrowLeft } from "lucide-react"
 
 import { MainNav } from "@/components/main-nav"
 import { AvailabilityCalendar } from "@/components/host/availability-calendar"
-import { createServerSupabaseClient } from "@/lib/supabase-server"
+import { createClient } from "@/utils/supabase/server"
 
 export default async function ListingAvailabilityPage({ params }: { params: { id: string } }) {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
 
   // Check if user is logged in
   const {

@@ -6,7 +6,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
-import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -17,31 +16,9 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { createEvent, updateEvent } from "@/lib/actions/admin-actions"
+import { createClient } from "@/utils/supabase/client"
 
-type EventType = {
-  id: string
-  name: string
-}
-
-type Venue = {
-  id: string
-  name: string
-  city: string
-  state: string
-}
-
-type Event = {
-  id: string
-  name: string
-  description: string
-  date: string
-  start_time: string
-  end_time: string
-  venue_id: string
-  event_type_id: string
-  image_url: string | null
-  is_active: boolean
-}
+import type { Event, EventType, Venue } from "@/types/supabase"
 
 export function EventForm({ event }: { event?: Event }) {
   const router = useRouter()
@@ -50,6 +27,8 @@ export function EventForm({ event }: { event?: Event }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  const [supabase] = useState(() => createClient());
 
   const [date, setDate] = useState<Date | undefined>(event ? new Date(event.date) : undefined)
 

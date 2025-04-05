@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Edit, Trash, Eye, ToggleLeft, ToggleRight } from "lucide-react"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/utils/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -20,17 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-type ParkingSpot = {
-  id: string
-  title: string
-  price_per_day: number
-  type: string
-  is_active: boolean
-  city: string
-  state: string
-  created_at: string
-  images: { image_url: string }[]
-}
+const supabase = createClient()
 
 export function ListingsList() {
   const [listings, setListings] = useState<ParkingSpot[]>([])

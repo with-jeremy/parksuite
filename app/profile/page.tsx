@@ -1,13 +1,13 @@
 export const dynamic = "force-dynamic"
 
-import { createServerSupabaseClient } from "@/lib/supabase-server"
+import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
 import { MainNav } from "@/components/main-nav"
 import { ProfileForm } from "@/components/profile-form"
 import Link from "next/link"
 
 export default async function ProfilePage() {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
 
   // Check if user is logged in
   const {

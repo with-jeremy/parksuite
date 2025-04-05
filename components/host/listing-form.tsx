@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/utils/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -15,25 +15,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ImageUploader } from "@/components/host/image-uploader"
 
-type Amenity = {
-  id: string
-  name: string
-}
-
-type ParkingSpot = {
-  id: string
-  title: string
-  description: string
-  address: string
-  city: string
-  state: string
-  zip_code: string
-  type: string
-  price_per_day: number
-  spaces_available: number
-  is_active: boolean
-  parking_spot_amenities: { amenity_id: string }[]
-}
+import type { ParkingSpot, Amenity } from "@/types/supabase"
 
 export function ListingForm({ listing }: { listing?: ParkingSpot }) {
   const router = useRouter()

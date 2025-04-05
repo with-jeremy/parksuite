@@ -1,27 +1,23 @@
 "use server"
 
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
+import { createClient } from "@/utils/supabase/server"
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 
 // Venue Actions
 export async function createVenue(formData: FormData) {
-  const supabase = createServerActionClient({ cookies })
+  const supabase = await createClient({ cookies })
 
-  // Check if user is authenticated and is an admin
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  // Check if user is authenticated
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (userError) {
+    console.error("Error getting user:", userError)
     return { error: "Not authenticated" }
   }
 
-  // Check if user is an admin
-  const { data: user } = await supabase.from("users").select("is_admin").eq("id", session.user.id).single()
-
-  if (!user?.is_admin) {
-    return { error: "Not authorized" }
+  if (!user) {
+    return { error: "Not authenticated" }
   }
 
   // Extract form data
@@ -73,7 +69,7 @@ export async function createVenue(formData: FormData) {
 }
 
 export async function updateVenue(venueId: string, formData: FormData) {
-  const supabase = createServerActionClient({ cookies })
+  const supabase = await createClient({ cookies })
 
   // Check if user is authenticated and is an admin
   const {
@@ -84,12 +80,7 @@ export async function updateVenue(venueId: string, formData: FormData) {
     return { error: "Not authenticated" }
   }
 
-  // Check if user is an admin
-  const { data: user } = await supabase.from("users").select("is_admin").eq("id", session.user.id).single()
-
-  if (!user?.is_admin) {
-    return { error: "Not authorized" }
-  }
+  
 
   // Extract form data
   const name = formData.get("name") as string
@@ -140,78 +131,81 @@ export async function updateVenue(venueId: string, formData: FormData) {
 }
 
 // Event Actions
+import { v4 as uuidv4 } from "uuid"
+
 export async function createEvent(formData: FormData) {
-  const supabase = createServerActionClient({ cookies })
+  const supabase = await createClient({ cookies })
 
-  // Check if user is authenticated and is an admin
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+   // Check if user is authenticated
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (userError) {
+    console.error("Error getting user:", userError)
     return { error: "Not authenticated" }
   }
 
-  // Check if user is an admin
-  const { data: user } = await supabase.from("users").select("is_admin").eq("id", session.user.id).single()
-
-  if (!user?.is_admin) {
-    return { error: "Not authorized" }
-  }
-
-  // Extract form data
-  const name = formData.get("name") as string
-  const description = formData.get("description") as string
-  const date = formData.get("date") as string
-  const startTime = formData.get("start_time") as string
-  const endTime = formData.get("end_time") as string
-  const venueId = formData.get("venue_id") as string
-  const eventTypeId = formData.get("event_type_id") as string
-  const imageUrl = formData.get("image_url") as string
-  const isActive = formData.get("is_active") === "true"
-
-  // Validate required fields
-  if (!name || !date || !startTime || !endTime || !venueId || !eventTypeId) {
-    return { error: "Missing required fields" }
+  if (!user) {
+    return { error: "Not authenticated" }
   }
 
   try {
-    // Insert new event
-    const { data, error } = await supabase
+    const name = formData.get("name") as string
+    const description = formData.get("description") as string
+    const date = formData.get("date") as string
+    const start_time = formData.get("start_time") as string
+    const end_time = formData.get("end_time") as string
+    const venue_id = formData.get("venue_id") as string
+    const event_type_id = formData.get("event_type_id") as string
+    const image_url = formData.get("image_url") as string
+    const is_active = formData.get("is_active") === "true"
+
+    // Validate required fields
+    if (!name || !date || !start_time || !end_time || !venue_id || !event_type_id) {
+      return { error: "Missing required fields" }
+    }
+
+    // Create a new event ID
+    const eventId = uuidv4()
+
+    // Insert the new event into the database
+    const { error } = await supabase
       .from("events")
       .insert({
+        id: eventId,
         name,
         description,
         date,
-        start_time: startTime,
-        end_time: endTime,
-        venue_id: venueId,
-        event_type_id: eventTypeId,
-        image_url: imageUrl || null,
-        is_active: isActive,
+        start_time,
+        end_time,
+        venue_id,
+        event_type_id,
+        image_url,
+        is_active,
       })
-      .select("id")
-      .single()
 
-    if (error) throw error
+    if (error) {
+      console.error("Error creating event:", error)
+      return { error: "Failed to create event" }
+    }
 
-    // Revalidate paths
     revalidatePath("/admin/events")
-
-    return { success: true, id: data.id }
+    return { success: true }
   } catch (error: any) {
-    console.error("Error creating event:", error)
-    return { error: error.message }
+    console.error("Unexpected error creating event:", error)
+    return { error: "An unexpected error occurred" }
   }
 }
 
 export async function updateEvent(eventId: string, formData: FormData) {
-  const supabase = createServerActionClient({ cookies })
+  const supabase = await createClient({ cookies })
 
-  // Check if user is authenticated and is an admin
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  // Validate user authentication
+  const { data: { session }, error: userError } = await supabase.auth.getSession()
+
+  if (userError) {
+    console.error("Error getting user:", userError)
+    return { error: "Not authenticated" }
+  }
 
   if (!session) {
     return { error: "Not authenticated" }
@@ -224,49 +218,48 @@ export async function updateEvent(eventId: string, formData: FormData) {
     return { error: "Not authorized" }
   }
 
-  // Extract form data
-  const name = formData.get("name") as string
-  const description = formData.get("description") as string
-  const date = formData.get("date") as string
-  const startTime = formData.get("start_time") as string
-  const endTime = formData.get("end_time") as string
-  const venueId = formData.get("venue_id") as string
-  const eventTypeId = formData.get("event_type_id") as string
-  const imageUrl = formData.get("image_url") as string
-  const isActive = formData.get("is_active") === "true"
-
-  // Validate required fields
-  if (!name || !date || !startTime || !endTime || !venueId || !eventTypeId) {
-    return { error: "Missing required fields" }
-  }
-
   try {
-    // Update event
+    const name = formData.get("name") as string
+    const description = formData.get("description") as string
+    const date = formData.get("date") as string
+    const start_time = formData.get("start_time") as string
+    const end_time = formData.get("end_time") as string
+    const venue_id = formData.get("venue_id") as string
+    const event_type_id = formData.get("event_type_id") as string
+    const image_url = formData.get("image_url") as string
+    const is_active = formData.get("is_active") === "true"
+
+    // Validate required fields
+    if (!name || !date || !start_time || !end_time || !venue_id || !event_type_id) {
+      return { error: "Missing required fields" }
+    }
+
+    // Update the event in the database
     const { error } = await supabase
       .from("events")
       .update({
         name,
         description,
         date,
-        start_time: startTime,
-        end_time: endTime,
-        venue_id: venueId,
-        event_type_id: eventTypeId,
-        image_url: imageUrl || null,
-        is_active: isActive,
+        start_time,
+        end_time,
+        venue_id,
+        event_type_id,
+        image_url,
+        is_active,
       })
       .eq("id", eventId)
 
-    if (error) throw error
+    if (error) {
+      console.error("Error updating event:", error)
+      return { error: "Failed to update event" }
+    }
 
-    // Revalidate paths
     revalidatePath("/admin/events")
-    revalidatePath(`/admin/events/${eventId}`)
-
     return { success: true }
   } catch (error: any) {
-    console.error("Error updating event:", error)
-    return { error: error.message }
+    console.error("Unexpected error updating event:", error)
+    return { error: "An unexpected error occurred" }
   }
 }
 

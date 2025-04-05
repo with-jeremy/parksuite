@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/utils/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -13,24 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { createVenue, updateVenue } from "@/lib/actions/admin-actions"
 
-type VenueType = {
-  id: string
-  name: string
-}
-
-type Venue = {
-  id: string
-  name: string
-  description: string
-  address: string
-  city: string
-  state: string
-  zip_code: string
-  capacity: number
-  venue_type_id: string
-  image_url: string | null
-  is_active: boolean
-}
+import type { Venue, VenueType } from "@/types/supabase"
 
 export function VenueForm({ venue }: { venue?: Venue }) {
   const router = useRouter()
@@ -55,6 +38,7 @@ export function VenueForm({ venue }: { venue?: Venue }) {
   useEffect(() => {
     // Fetch venue types
     async function fetchVenueTypes() {
+      const supabase = await createClient()
       const { data, error } = await supabase.from("venue_types").select("id, name").order("name")
 
       if (error) {
