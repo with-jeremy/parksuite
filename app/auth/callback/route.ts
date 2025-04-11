@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get("code")
   const origin = requestUrl.origin
-
+  
   // If the code is missing, redirect to login page
   if (!code) {
     console.error("Missing code in callback URL")
@@ -17,13 +17,18 @@ export async function GET(request: NextRequest) {
   try {
     const cookieStore = cookies()
     const supabase = await createClient({ cookies: () => cookieStore })
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    
+    // Exchange the code for a session
+    const { error, data } = await supabase.auth.exchangeCodeForSession(code)
     
     if (error) {
-      console.error("Error exchanging code for session:", error)
+      console.error("Error exchanging code for session:", error.message, error.status)
       return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error.message)}`)
     }
-
+    
+    // Log successful authentication
+    console.log("Authentication successful, redirecting to dashboard")
+    
     // Successful authentication, redirect to profile page
     return NextResponse.redirect(`${origin}/dashboard`)
   } catch (error: any) {
