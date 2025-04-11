@@ -2,6 +2,19 @@ import { type NextRequest } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
+  // Check if we have a code in the root URL and redirect it properly to auth/callback
+  const { pathname, searchParams } = new URL(request.url)
+  const code = searchParams.get('code')
+  
+  if (pathname === '/' && code) {
+    // Redirect to the correct callback URL with the code
+    const callbackUrl = new URL('/auth/callback', request.url)
+    searchParams.forEach((value, key) => {
+      callbackUrl.searchParams.set(key, value)
+    })
+    return Response.redirect(callbackUrl)
+  }
+  
   return await updateSession(request)
 }
 

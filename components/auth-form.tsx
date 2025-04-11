@@ -74,10 +74,14 @@ export function AuthForm() {
       setError(null)
       setMessage(null)
       const supabase = await createClient()
+      
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://parksuite.netlify.app';
+      const callbackUrl = `${origin}/auth/callback`;
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl,
           skipBrowserRedirect: false,
           queryParams: {
             access_type: 'offline',
