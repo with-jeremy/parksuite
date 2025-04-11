@@ -9,14 +9,16 @@ export async function createClient(options?: { cookies: () => ReturnType<typeof 
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return cookieStore.getAll()
+        async getAll() {
+          const resolvedCookieStore = await cookieStore
+          return resolvedCookieStore.getAll()
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
+            cookiesToSet.forEach(({ name, value, options }) => {
+              // Replace with a proper cookie management logic
+              throw new Error('Setting cookies is not supported with ReadonlyRequestCookies.')
+            })
           } catch {
             // The `setAll` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
